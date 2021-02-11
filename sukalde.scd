@@ -85,7 +85,7 @@ t = TempoClock(80/60); // Ez dakit oraindik hemen egin beharko nukeen, baina, or
 };// Efektuak (reverb, delay... Synthak, finean) instantziatu egin behar dira. Eta, gainera, berauek erabiltzen dituzten Synthak baino lehen (beherago egon behar dute NodeTreean).
 
 ~makeEvents = {
-	MIDIIn.connectAll;
+	//MIDIIn.connectAll;
 	e = Dictionary.new;
 
 	e.add(\event1 -> {
@@ -99,9 +99,10 @@ t = TempoClock(80/60); // Ez dakit oraindik hemen egin beharko nukeen, baina, or
 		Pdef(\goilarak,Pbind(
 			\instrument, \bpfbuf,
 			\buf,Pxrand(b[\Goilarak].value.collect({arg a; a.bufnum}),inf),
-			\rel,Pif(Pbinop('==', Pkey(\buf), 12),1,0.3),
-			\amp,Pif(Pbinop('==', Pkey(\buf), 12),1,0.7),
-			\dur,Pseq([3,3,4,2,4]/4,inf),//Pseq([1/1],inf), //[3,3,4,2,4] Son - [3,3,4,3,3] Bossa Nova
+			// \buf,b[\Goilarak][1],
+/*			\rel,Pif(Pbinop('==', Pkey(\buf), 12),1,0.3),
+			\amp,Pif(Pbinop('==', Pkey(\buf), 12),1,0.7),*/
+			\dur,Pseq([Pwhite(1/4,1.5/4,4),3],inf)//Pseq([1/1],inf), //[3,3,4,2,4] Son - [3,3,4,3,3] Bossa Nova
 			// \stretch, ~barDur,
 			// \out,~bus[\reverb],
 		)).play(t,quant:4);
@@ -118,7 +119,7 @@ t = TempoClock(80/60); // Ez dakit oraindik hemen egin beharko nukeen, baina, or
 		Pbindef(\bell,\dur,Pbjorklund2(10,16)/4,\amp,0.4);
 	});
 
-	MIDIdef.cc(\controller, { //Continious Controller messages
+/*	MIDIdef.cc(\controller, { //Continious Controller messages
 		arg val, num;
 		case
 		{num==73 && val==127} {e[\event1].value;"event1".postln;}
@@ -130,7 +131,7 @@ t = TempoClock(80/60); // Ez dakit oraindik hemen egin beharko nukeen, baina, or
 		{num==83 && val==127} {e[\oneshot2].value;"oneshot2".postln;}
 		{num==84 && val==127} {e[\oneshot3].value;"oneshot3".postln;}
 		{true} {nil};
-	});
+	});*/
 };
 
 //4. register functions with ServerBoot/Quit/Tree
@@ -203,13 +204,13 @@ s.sync; // Zeregin asinkronkoek (Buffer.read, SynthDef...) buka dezaten itxarote
 	s.freeAll; // cmd+. -ren berdina da! (ServerTree-n erregistratzen diren funtzioak exekutatuko dira)
 
 	s.sync;
-
 	"done".postln;
+
 });
 )
 
 // Saioa bera
-t = TempoClock(60/60);
+t = TempoClock(50/60);
 e[\event1].value;
 Pbindef(\snare).play//play(t,quant: 4)
 Pbindef(\snae,out,~bus[\reverb])
