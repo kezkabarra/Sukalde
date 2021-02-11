@@ -48,7 +48,7 @@ t = TempoClock(80/60); // Ez dakit oraindik hemen egin beharko nukeen, baina, or
 		);
 	};
 }; // Hau ebaluatzean funtzioa difinitzen baino ez gara ari. Ez da funtzioa exekutatzen!
-// Buffer.
+
 
 ~makeBusses = {
 	~bus = Dictionary.new;
@@ -91,10 +91,10 @@ t = TempoClock(80/60); // Ez dakit oraindik hemen egin beharko nukeen, baina, or
 	e.add(\event1 -> {
 		Pdef(\zarata, Pbind(
 			\instrument,\bpfbuf,
-			\buf,b[\Zarata][1],
-			\rel,16,
-			\amp,Pwhite(0.5,0.8,inf),
-			\dur,16,
+			\buf,Pxrand(b[\Zarata].value.collect({arg a; a.bufnum}),inf),
+			\rel,10,
+			\amp,Pwhite(0.5,0.6,inf),
+			\dur,Pseq([3],inf)//Pseq([1/1],inf), //[3,3,4,2,4] Son - [3,3,4,3,3] Bossa Nova
 		)).play(t,quant:4);
 		Pdef(\goilarak,Pbind(
 			\instrument, \bpfbuf,
@@ -210,7 +210,7 @@ s.sync; // Zeregin asinkronkoek (Buffer.read, SynthDef...) buka dezaten itxarote
 )
 
 // Saioa bera
-t = TempoClock(50/60);
+t = TempoClock(100/60);
 e[\event1].value;
 Pbindef(\snare).play//play(t,quant: 4)
 Pbindef(\snae,out,~bus[\reverb])
