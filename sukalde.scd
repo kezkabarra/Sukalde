@@ -91,21 +91,31 @@ t = TempoClock(80/60); // Ez dakit oraindik hemen egin beharko nukeen, baina, or
 	e.add(\event1 -> {
 		Pdef(\zarata, Pbind(
 			\instrument,\bpfbuf,
-			\buf,Pxrand(b[\Zarata].value.collect({arg a; a.bufnum}),inf),
-			\rel,10,
-			\amp,Pwhite(0.5,0.6,inf),
-			\dur,Pseq([3],inf)//Pseq([1/1],inf), //[3,3,4,2,4] Son - [3,3,4,3,3] Bossa Nova
+			\buf,Pseq([b[\Zarata][0],b[\Zarata][1]],inf),
+			\sus,Pseq([2, 2],inf),\rel,0,
+			\amp,0.5,
+			\dur,Pseq([4, 4],inf)//Pseq([1/1],inf), //[3,3,4,2,4] Son - [3,3,4,3,3] Bossa Nova
 		)).play(t,quant:4);
-		Pdef(\goilarak,Pbind(
+
+		Pdef(\dunbala, Pbind(
+			\instrument,\bpfbuf,
+			\buf,b[\Dunbal],
+			// \sus,,\rel,0,
+			\amp,0.5,
+			\dur,Pseq([1, 3],inf)//Pseq([1/1],inf), //[3,3,4,2,4] Son - [3,3,4,3,3] Bossa Nova
+		)).play(t,quant:4);
+
+
+/*		Pdef(\goilarak,Pbind(
+			// \buf,b[\Goilarak][1],
 			\instrument, \bpfbuf,
 			\buf,Pxrand(b[\Goilarak].value.collect({arg a; a.bufnum}),inf),
-			// \buf,b[\Goilarak][1],
 /*			\rel,Pif(Pbinop('==', Pkey(\buf), 12),1,0.3),
 			\amp,Pif(Pbinop('==', Pkey(\buf), 12),1,0.7),*/
 			\dur,Pseq([Pwhite(1/4,1.5/4,4),3],inf)//Pseq([1/1],inf), //[3,3,4,2,4] Son - [3,3,4,3,3] Bossa Nova
 			// \stretch, ~barDur,
 			// \out,~bus[\reverb],
-		)).play(t,quant:4);
+		)).play(t,quant:4);*/
 	});
 
 	e.add(\event2 ->{
@@ -210,7 +220,7 @@ s.sync; // Zeregin asinkronkoek (Buffer.read, SynthDef...) buka dezaten itxarote
 )
 
 // Saioa bera
-t = TempoClock(100/60);
+t = TempoClock(120/60);
 e[\event1].value;
 Pbindef(\snare).play//play(t,quant: 4)
 Pbindef(\snae,out,~bus[\reverb])
