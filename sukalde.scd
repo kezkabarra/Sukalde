@@ -27,7 +27,8 @@ ServerQuit.removeAll;
 
 //2. initialize global variables
 ~out = 0;
-~path = PathName(thisProcess.nowExecutingPath).parentPath++"Samples/";
+~pathGit = PathName(thisProcess.nowExecutingPath).parentPath;
+~pathSamples = PathName(thisProcess.nowExecutingPath).parentPath++"Samples/";
 t = TempoClock(80/60); // Ez dakit oraindik hemen egin beharko nukeen, baina, oraingoz, hementxe utziko dut
 ~barDur = 4/t.tempo; // <-- 60/bpm * beat_per_bar // Barra batek zenbat segundu
 
@@ -102,7 +103,7 @@ t = TempoClock(80/60); // Ez dakit oraindik hemen egin beharko nukeen, baina, or
 			\buf,b[\Dunbal],
 			// \sus,,\rel,0,
 			\amp,0.5,
-			\dur,Pseq([1, 3],inf)//Pseq([1/1],inf), //[3,3,4,2,4] Son - [3,3,4,3,3] Bossa Nova
+			\dur,Pseq([1,3],inf)//Pseq([1/1],inf), //[3,3,4,2,4] Son - [3,3,4,3,3] Bossa Nova
 		)).play(t,quant:4);
 
 
@@ -222,9 +223,19 @@ s.sync; // Zeregin asinkronkoek (Buffer.read, SynthDef...) buka dezaten itxarote
 // Saioa bera
 t = TempoClock(120/60);
 e[\event1].value;
-Pbindef(\snare).play//play(t,quant: 4)
-Pbindef(\snae,out,~bus[\reverb])
+Pbindef(\snare).play
+Pbindef(\snare,out,~bus[\reverb])
+
 Pbindef(\kick,\dur,Pseq([3,1,3,1,3,1,3,1,]/2,inf))
 Pbindef(\snare,\dur,Pbjorklund2(26,32,inf)/4)
 Pbindef(\bell,\dur,1/4,\amp,0.25)
 Synth(\bpfsaw, [\freq, 1.4, \atk, 0.1, \rel, 7, \out, ~bus[\reverb]], ~mainGrp); //reverbare proba egiteko
+
+/* GIT*/
+(
+var p, l;
+p = Pipe.new("git "+~path+"&& ls", "r");
+l = p.getLine;                    // get the first line
+while({l.notNil}, {l.postln; l = p.getLine; });    // post until l = nil
+p.close;                    // close the pipe to avoid that nasty buildup
+)
