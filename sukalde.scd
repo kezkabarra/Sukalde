@@ -35,7 +35,7 @@ t = TempoClock(80/60); // Ez dakit oraindik hemen egin beharko nukeen, baina, or
 //3. define piece-specific functions
 ~makeBuffers = {
 	b = Dictionary.new;
-	PathName(~path).entries.do{
+	PathName(~pathSamples).entries.do{
 		arg subfolder;
 		b.add(
 			subfolder.folderName.asSymbol ->
@@ -48,7 +48,7 @@ t = TempoClock(80/60); // Ez dakit oraindik hemen egin beharko nukeen, baina, or
 			)
 		);
 	};
-}; // Hau ebaluatzean funtzioa difinitzen baino ez gara ari. Ez da funtzioa exekutatzen!
+}; // Hau ebaluatzean funtzioa definitzen baino ez gara ari. Ez da funtzioa exekutatzen!
 
 
 ~makeBusses = {
@@ -94,35 +94,32 @@ t = TempoClock(80/60); // Ez dakit oraindik hemen egin beharko nukeen, baina, or
 			\instrument,\bpfbuf,
 			\buf,Pseq([b[\Zarata][0],b[\Zarata][1]],inf),
 			\sus,Pseq([2, 2],inf),\rel,0,
-			\amp,0.5,
-			\dur,Pseq([4, 4],inf)//Pseq([1/1],inf), //[3,3,4,2,4] Son - [3,3,4,3,3] Bossa Nova
+			\amp,Pseq([0.5,0.3],inf),
+			\dur,Pseq([4, 4],inf),
+			\pan,1
 		)).play(t,quant:4);
 
-		Pdef(\dunbala, Pbind(
+		Pdef(\dunbal, Pbind(
 			\instrument,\bpfbuf,
 			\buf,b[\Dunbal],
-			// \sus,,\rel,0,
 			\amp,0.5,
-			\dur,Pseq([1,3],inf)//Pseq([1/1],inf), //[3,3,4,2,4] Son - [3,3,4,3,3] Bossa Nova
+			\pan,-1,
+			\dur,Pseq([1,3],inf)
 		)).play(t,quant:4);
-
-
-/*		Pdef(\goilarak,Pbind(
-			// \buf,b[\Goilarak][1],
-			\instrument, \bpfbuf,
-			\buf,Pxrand(b[\Goilarak].value.collect({arg a; a.bufnum}),inf),
-/*			\rel,Pif(Pbinop('==', Pkey(\buf), 12),1,0.3),
-			\amp,Pif(Pbinop('==', Pkey(\buf), 12),1,0.7),*/
-			\dur,Pseq([Pwhite(1/4,1.5/4,4),3],inf)//Pseq([1/1],inf), //[3,3,4,2,4] Son - [3,3,4,3,3] Bossa Nova
-			// \stretch, ~barDur,
-			// \out,~bus[\reverb],
-		)).play(t,quant:4);*/
 	});
 
 	e.add(\event2 ->{
-		Pbindef(\kick,\dur,Pseq([3,1,3,1,3,1,3,1,]/4,inf),\amp,Pwhite(0.5,0.8,inf));
+		Pdef(\goilarak,Pbind(
+			\instrument, \bpfbuf,
+			\buf,Pxrand(b[\Goilarak].value.collect({arg a; a.bufnum}),inf),
+			\dur,Pwhite(0.75/4,1.25/4),
+			\amp,0.1,
+			\pan,1
+		)).play(t,quant:[4,2]);
+
+/*		Pbindef(\,\dur,Pseq([3,1,3,1,3,1,3,1,]/4,inf),\amp,Pwhite(0.5,0.8,inf));
 		Pbindef(\snare,\dur,Pbjorklund2(26,32,inf)/4,\amp,Pif(Pbinop('==', Pkey(\buf), 12),1,0.7));
-		Pbindef(\bell,\dur,1/4,\amp,0.25);
+		Pbindef(\bell,\dur,1/4,\amp,0.25);*/
 	});
 	e.add(\event3 ->{
 		Pbindef(\kick,\dur,Pseq([3,1,3,1,3,1,3,1,]/2,inf));
@@ -155,30 +152,10 @@ s.waitForBoot({ // (GUI-a onartzen duen) AppClock gainean dabilen Routine-a (exe
 
 s.sync; // Zeregin asinkronkoek (Buffer.read, SynthDef...) buka dezaten itxaroten du. Kasu honetan, zerbitzariak egin behar duena (ServerBoot-en erregistratutako funtzioak exekutatu, adibidez) egin dezala itxaron.
 
-	//6a. SynthDefs
-	SynthDef(\bpfsaw, {
-		arg atk=2, sus=0, rel=3, c1=1, c2=(-1),
-		freq=500, detune=0.2, pan=0, cfhzmin=0.1, cfhzmax=0.3,
-		cfmin=500, cfmax=2000, rqmin=0.1, rqmax=0.2,
-		lsf=200, ldb=0, amp=1, out=0;
-		var sig, env;
-		env = EnvGen.kr(Env([0,1,1,0],[atk,sus,rel],[c1,0,c2]),doneAction:2);
-		sig = Saw.ar(freq * {LFNoise1.kr(0.5,detune).midiratio}!2);
-		sig = BPF.ar(
-			sig,
-			{LFNoise1.kr(
-				LFNoise1.kr(4).exprange(cfhzmin,cfhzmax)
-			).exprange(cfmin,cfmax)}!2,
-			{LFNoise1.kr(0.1).exprange(rqmin,rqmax)}!2
-		);
-		sig = BLowShelf.ar(sig, lsf, 0.5, ldb);
-		sig = Balance2.ar(sig[0], sig[1], pan);
-		sig = sig * env * amp;
-		Out.ar(out, sig);
-	}).add;
+//6a. SynthDefs
 
 	SynthDef(\bpfbuf, {
-		arg atk=0, sus=0, rel=3, c1=1, c2=(-1),
+		arg atk=0, sus=3, rel=0, c1=1, c2=(-1),
 		buf=0, rate=1, spos=0, freq=440, rq=1, bpfmix=0,
 		pan=0, amp=1, out=0;
 		var sig, env;
@@ -186,7 +163,7 @@ s.sync; // Zeregin asinkronkoek (Buffer.read, SynthDef...) buka dezaten itxarote
 		sig = PlayBuf.ar(2, buf, rate*BufRateScale.ir(buf),startPos:spos);
 		sig = XFade2.ar(sig, BPF.ar(sig, freq, rq, 1/rq.sqrt), bpfmix*2-1);
 		sig = sig * env;
-		sig = Pan2.ar(sig, pan, amp);
+		sig = Balance2.ar(sig[0],sig[1],pan, amp);
 		Out.ar(out, sig);
 	}).add;
 
@@ -209,7 +186,7 @@ s.sync; // Zeregin asinkronkoek (Buffer.read, SynthDef...) buka dezaten itxarote
 
 	s.sync;
 
-	// 6b. register remaining functions
+// 6b. register remaining functions
 	ServerTree.add(~makeNodes); // Efektuak (reverb, delay... Synthak, finean) instantziatu egin behar dira. Eta, gainera, berauek erabiltzen dituzten Synthak baino lehen (beherago egon behar dute NodeTreean)
 	ServerTree.add(~makeEvents);
 	s.freeAll; // cmd+. -ren berdina da! (ServerTree-n erregistratzen diren funtzioak exekutatuko dira)
@@ -223,7 +200,9 @@ s.sync; // Zeregin asinkronkoek (Buffer.read, SynthDef...) buka dezaten itxarote
 // Saioa bera
 t = TempoClock(120/60);
 e[\event1].value;
-Pbindef(\snare).play
+e[\event2].value;
+
+Pbindef(\dunbal,\amp,0.5,\pan,1)
 Pbindef(\snare,out,~bus[\reverb])
 
 Pbindef(\kick,\dur,Pseq([3,1,3,1,3,1,3,1,]/2,inf))
@@ -232,10 +211,4 @@ Pbindef(\bell,\dur,1/4,\amp,0.25)
 Synth(\bpfsaw, [\freq, 1.4, \atk, 0.1, \rel, 7, \out, ~bus[\reverb]], ~mainGrp); //reverbare proba egiteko
 
 /* GIT*/
-(
-var p, l;
-p = Pipe.new("git "+~path+"&& ls", "r");
-l = p.getLine;                    // get the first line
-while({l.notNil}, {l.postln; l = p.getLine; });    // post until l = nil
-p.close;                    // close the pipe to avoid that nasty buildup
-)
+p=Pipe.new("cd"+~pathGit+"&& gnome-terminal", "r"); p.close;
