@@ -103,28 +103,44 @@ t = TempoClock(80/60); // Ez dakit oraindik hemen egin beharko nukeen, baina, or
 			\instrument,\bpfbuf,
 			\buf,b[\Dunbal],
 			\amp,0.5,
-			\pan,-1,
+			\pan,0,
 			\dur,Pseq([1,3],inf)
 		)).play(t,quant:4);
 	});
 
 	e.add(\event2 ->{
-		Pdef(\goilarak,Pbind(
+/*		Pdef(\goilarak,Pbind(
 			\instrument, \bpfbuf,
 			\buf,Pxrand(b[\Goilarak].value.collect({arg a; a.bufnum}),inf),
 			\dur,Pwhite(0.75/4,1.25/4),
 			\amp,0.1,
 			\pan,1
-		)).play(t,quant:[4,2]);
+		)).play(t,quant:[4,2]);*/
+
+		Pdef(\gitar,Pbind(
+			\instrument, \bpfbuf,
+			\buf,b[\Gitar],
+			\sus,5,
+			\dur,8,
+			\amp,1,
+			\pan,0
+		)).play(t,quant:[4]);
+
 
 /*		Pbindef(\,\dur,Pseq([3,1,3,1,3,1,3,1,]/4,inf),\amp,Pwhite(0.5,0.8,inf));
 		Pbindef(\snare,\dur,Pbjorklund2(26,32,inf)/4,\amp,Pif(Pbinop('==', Pkey(\buf), 12),1,0.7));
 		Pbindef(\bell,\dur,1/4,\amp,0.25);*/
 	});
 	e.add(\event3 ->{
-		Pbindef(\kick,\dur,Pseq([3,1,3,1,3,1,3,1,]/2,inf));
-		Pbindef(\snare,\dur,1/4,\amp,0);
-		Pbindef(\bell,\dur,Pbjorklund2(10,16)/4,\amp,0.4);
+		Pdef(\baxu,Pbind(
+			\instrument, \bpfbuf,
+			\buf,b[\Baxu],
+			\sus,10,
+			\dur,8,
+			\amp,1,
+			\pan,0
+		)).play(t,quant:[4,1]);
+
 	});
 
 /*	MIDIdef.cc(\controller, { //Continious Controller messages
@@ -198,11 +214,15 @@ s.sync; // Zeregin asinkronkoek (Buffer.read, SynthDef...) buka dezaten itxarote
 )
 
 // Saioa bera
-t = TempoClock(120/60);
-e[\event1].value;
+(t = TempoClock(120/60);
+e[\event1].value;)
 e[\event2].value;
+e[\event3].value;
 
-Pbindef(\dunbal,\amp,0.5,\pan,1)
+Pbindef(\gitar,\dur,4)
+Pbindef(\goilarak,\dur,4).stop
+Pbindef(\zarata).play
+Pbindef(\dunbal,\amp,0.5,\pan,1).stop
 Pbindef(\snare,out,~bus[\reverb])
 
 Pbindef(\kick,\dur,Pseq([3,1,3,1,3,1,3,1,]/2,inf))
